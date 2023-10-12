@@ -1,5 +1,5 @@
 // product.controller.ts
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, ConflictException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductService } from './products.service';
 import { Product } from './interface/product.interface';
@@ -16,13 +16,19 @@ export class ProductController {
 
   @Post()
   async create(@Body() createProductDto: CreateProductDto) {
+    const existingProduct = await this.productService.findByName(
+      createProductDto.name,
+    );
+    if (existingProduct) {
+      throw new ConflictException('Product already exists');
+    }
     createProductDto.category =
-      CATEGORY_MAP[createProductDto.name] || 'unknown'; // default to 'unknown' if not found in the map
+      CATEGORY_MAP[createProductDto.name] || 'unknown';
     return await this.productService.create(createProductDto);
   }
 
-  @Get()
-  async findAll(): Promise<Product[]> {
+  @Get('/all')
+  async findAllProducts(): Promise<Product[]> {
     return await this.productService.findAll();
   }
 

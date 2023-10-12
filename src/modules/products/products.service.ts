@@ -29,9 +29,12 @@ export class ProductService {
   async findAll(): Promise<Product[]> {
     return await this.productModel.find().exec();
   }
-
+  
   determineCategory(productName: string): string {
     return CATEGORY_MAP[productName] || 'unknown';
   }
-  // Add other necessary methods like findOne, update, delete, etc. as per your needs
+
+  async findByName(productName: string): Promise<Product | null> {
+    return await this.productModel.findOne({ name: productName }).exec();
+  }
 }

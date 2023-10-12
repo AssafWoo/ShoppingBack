@@ -43,6 +43,27 @@ export class ListsController {
     return this.listsService.findOneById(cleanedId);
   }
 
+  @Delete(':listId')
+  async deleteList(
+    @Param('listId') listId: string,
+  ): Promise<{ message: string }> {
+    await this.listsService.deleteListById(listId);
+    return { message: 'List deleted successfully' };
+  }
+
+  @Put(':id/finishShopping')
+  async finishShopping(
+    @Param('id') listId: string,
+    @Body('status') status: boolean,
+    @Body('totalPrice') totalPrice: string,
+  ): Promise<List> {
+    return await this.listsService.finishShopping(
+      listId,
+      status,
+      parseFloat(totalPrice),
+    );
+  }
+
   @Post('/listItems/byIds')
   async getListItemsByIds(@Body('itemIds') ids: string[]): Promise<any[]> {
     if (!ids) {
@@ -54,12 +75,11 @@ export class ListsController {
     return await this.listsService.findListItemsByIds(objectIdArray);
   }
 
-  @Post("/new")
+  @Post('/new')
   create(@Body() createListDto: CreateListDto): Promise<List> {
     createListDto.name = this.listsService.generateRandomName();
     return this.listsService.create(createListDto);
   }
-  
 
   @Post(':listId/addProduct')
   async addProductToList(
@@ -68,7 +88,7 @@ export class ListsController {
   ): Promise<List> {
     return await this.listsService.addProductToList(listId, createListItemDto);
   }
-  
+
   @Put(':listId/products/:listItemId')
   async updateProductStatusInList(
     @Param('listId') listId: string,
@@ -81,7 +101,6 @@ export class ListsController {
       status,
     );
   }
-  
 
   @Delete(':listId/products/:productId')
   async deleteListItem(

@@ -156,6 +156,33 @@ export class ListsService {
     }
   }
 
+  async finishShopping(
+    listId: string,
+    status: boolean,
+    totalPrice: number,
+  ): Promise<List> {
+    const list = await this.listModel.findById(listId);
+
+    if (!list) {
+      throw new NotFoundException('List not found');
+    }
+
+    // Update list status and total price
+    list.active = status;
+    list.finalPrice = totalPrice;
+
+    const updatedList = await list.save();
+
+    // Notify other clients using the gateway (if needed)
+    this.listsGateway.sendListUpdate('shoppingFinished', {
+      listId: listId,
+      status: status,
+      totalPrice: totalPrice,
+    });
+
+    return updatedList;
+  }
+
   async deleteListItem(
     listId: string,
     productId: Types.ObjectId,
@@ -179,5 +206,21 @@ export class ListsService {
       productId: productId,
     });
     return updatedList;
+  }
+
+  async deleteListById(listId: string): Promise<void> {
+    const list = await this.listModel.findById(listId);
+    if (!list) {
+      throw new NotFoundException('List not found');
+    }
+
+    // Delete all list items associated with the list (optional based on your use-case)
+    await this.listItemModel.deleteMany({ _id: { $in: list.items } });
+
+    // Delete the list itself
+    await this.listModel.findByIdAndDelete(listId);
+
+    // Notify other clients using the gateway
+    this.listsGateway.sendListUpdate('listDeleted', { listId: listId });
   }
 }
