@@ -7,6 +7,7 @@ import { List } from './interfaces/list.interface';
 import { ListItem } from './interfaces/listItem.interface';
 import { ShoppingListGateway } from 'src/shopping-list/shopping-list.gateway';
 import { adjectives, nouns } from './listNames/words';
+import { Product } from '../products/interface/product.interface';
 
 @Injectable()
 export class ListsService {
@@ -223,4 +224,68 @@ export class ListsService {
     // Notify other clients using the gateway
     this.listsGateway.sendListUpdate('listDeleted', { listId: listId });
   }
+
+  async getStatistics(): Promise<any> {
+    const closedLists = await this.listModel
+      .find({ active: false })
+      .populate({
+        path: 'items',
+        populate: {
+          path: 'productId',
+          model: 'Product',
+        },
+      })
+      .exec();
+
+    const result = {
+      categoryDistribution: {},
+      assigneeDistribution: {},
+      totalSpent: 0,
+    };
+
+    for (const list of closedLists) {
+      this.computeTotalSpent(result, list);
+      this.computeCategoryDistribution(result, list);
+      this.computeAssigneeDistribution(result, list);
+    }
+
+    return result;
+  }
+
+  private computeTotalSpent(result: any, list: List) {
+    result.totalSpent += list.finalPrice;
+  }
+
+  private computeCategoryDistribution(result: any, list: List) {
+    for (const item of list.items) {
+      if ('productId' in item) {
+        const product = item.productId as unknown as Product;
+        if (product.category) {
+          result.categoryDistribution[product.category] =
+            (result.categoryDistribution[product.category] || 0) + 1;
+        }
+      }
+    }
+  }
+
+  private computeAssigneeDistribution(result: any, list: List) {
+    for (const item of list.items) {
+      if ('assignee' in item && item.assignee) {
+        result.assigneeDistribution[item.assignee] =
+          (result.assigneeDistribution[item.assignee] || 0) + 1;
+      }
+    }
+  }
+
+  async editListItem(listItemId: Types.ObjectId, updateData: Partial<ListItem>): Promise<ListItem> {
+    const listItem = await this.listItemModel.findById(listItemId);
+    if (!listItem) {
+      throw new NotFoundException('List item not found');
+    }
+    
+    Object.assign(listItem, updateData); // Copy the properties from updateData to listItem
+  
+    return await listItem.save();
+  }
+  
 }

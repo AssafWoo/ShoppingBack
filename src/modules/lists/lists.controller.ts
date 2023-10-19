@@ -6,6 +6,7 @@ import {
   Param,
   Put,
   Delete,
+  Patch,
   BadRequestException,
 } from '@nestjs/common';
 import { ListsService } from './lists.service';
@@ -35,6 +36,11 @@ export class ListsController {
   @Get('/listItems')
   async getAllListItems(): Promise<ListItem[]> {
     return await this.listsService.findAllListItems();
+  }
+
+  @Get('/statistics')
+  async getStatistics(): Promise<any> {
+    return await this.listsService.getStatistics();
   }
 
   @Get(':id')
@@ -110,6 +116,18 @@ export class ListsController {
     return await this.listsService.deleteListItem(
       listId,
       Types.ObjectId.createFromHexString(productId),
+    );
+  }
+
+  @Patch(':listId/products/:listItemId/edit')
+  async editListItem(
+    @Param('listId') listId: string,
+    @Param('listItemId') listItemId: string,
+    @Body() updateData: Partial<ListItem>,
+  ): Promise<ListItem> {
+    return await this.listsService.editListItem(
+      Types.ObjectId.createFromHexString(listItemId),
+      updateData,
     );
   }
 }

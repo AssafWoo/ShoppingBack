@@ -6,6 +6,7 @@ import { ListsModule } from './modules/lists/lists.module';
 import { ProductModule } from './modules/products/products.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ShoppingListGateway } from './shopping-list/shopping-list.gateway';
+import { UsersModule } from './modules/users/users.module';
 
 
 @Module({
@@ -22,6 +23,8 @@ import { ShoppingListGateway } from './shopping-list/shopping-list.gateway';
     }),
     ListsModule,
     ProductModule,
+    UsersModule, // <-- Add this line to integrate the UsersModule
+
   ],
   controllers: [AppController],
   providers: [AppService, ShoppingListGateway],
