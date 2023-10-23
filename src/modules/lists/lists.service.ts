@@ -59,7 +59,7 @@ export class ListsService {
           },
           {
             $lookup: {
-              from: 'Products', // this should be the name of your Product collection
+              from: 'Products',
               localField: 'productId',
               foreignField: '_id',
               as: 'productDetails',
@@ -71,7 +71,6 @@ export class ListsService {
           {
             $project: {
               productId: 0,
-              'productDetails._id': 0,
             },
           },
         ])
@@ -81,6 +80,7 @@ export class ListsService {
       throw error;
     }
   }
+
   async findAllListItems(): Promise<ListItem[]> {
     try {
       return await this.listItemModel.find().lean().exec();
@@ -115,6 +115,7 @@ export class ListsService {
 
     return savedList;
   }
+  
   async updateProductStatusInList(
     listId: string,
     listItemId: Types.ObjectId,
@@ -277,15 +278,18 @@ export class ListsService {
     }
   }
 
-  async editListItem(listItemId: Types.ObjectId, updateData: Partial<ListItem>): Promise<ListItem> {
-    const listItem = await this.listItemModel.findById(listItemId);
-    if (!listItem) {
+  async editListItem(
+    listItemId: Types.ObjectId,
+    updateData: Partial<ListItem>,
+  ): Promise<ListItem> {
+    await this.listItemModel.updateOne({ _id: listItemId }, updateData);
+    const updatedListItem = await this.listItemModel.findById(listItemId);
+    if (!updatedListItem) {
       throw new NotFoundException('List item not found');
     }
-    
-    Object.assign(listItem, updateData); // Copy the properties from updateData to listItem
-  
-    return await listItem.save();
+    this.listsGateway.sendListUpdate('productEdited', {
+      product: updatedListItem,
+    });
+    return updatedListItem;
   }
-  
 }
