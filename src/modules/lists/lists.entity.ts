@@ -21,6 +21,12 @@ export class List extends Document {
 
   @Prop({ default: 0 })
   finalPrice: number;
+
+  @Prop()
+  userId: string;
+
+  @Prop()
+  organizationId: string;
 }
 
 export const ListSchema = SchemaFactory.createForClass(List);

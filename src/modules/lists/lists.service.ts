@@ -24,25 +24,47 @@ export class ListsService {
     return `${randomAdjective} ${randomNoun}`;
   }
 
-  async create(createListDto: any): Promise<List> {
+  async create(
+    createListDto: any,
+    userId: string,
+    organizationId: string = '',
+  ): Promise<List> {
+    createListDto.userId = userId;
+    createListDto.organizationId = organizationId;
     const newList = new this.listModel(createListDto);
     const savedList = await newList.save();
     this.listsGateway.sendListUpdate('listCreated', savedList);
     return savedList;
   }
 
-  async findAll(): Promise<List[]> {
+  async findAll(userId: string, organizationId: string): Promise<List[]> {
     try {
-      return await this.listModel.find().lean().exec();
+      return await this.listModel
+        .find({
+          $or: [{ userId }, { organizationId }],
+        })
+        .sort({ createdAt: -1 }) // Sorting in descending order
+        .lean()
+        .exec();
     } catch (error) {
       console.error('Error fetching lists:', error);
       throw error;
     }
   }
 
-  async findLatest(): Promise<List> {
-    return this.listModel.findOne({ active: true }).sort('-createdAt').exec();
+  async findLatest(userId: string, organizationId: string = ''): Promise<List> {
+    return this.listModel
+      .findOne({ 
+        active: true, 
+        $or: [
+          { userId: userId },
+          { organizationId: organizationId }
+        ]
+      })
+      .sort({ createdAt: -1 })
+      .exec();
   }
+  
 
   async findOneById(id: string): Promise<List> {
     return await this.listModel.findById(id).exec();
@@ -115,7 +137,7 @@ export class ListsService {
 
     return savedList;
   }
-  
+
   async updateProductStatusInList(
     listId: string,
     listItemId: Types.ObjectId,

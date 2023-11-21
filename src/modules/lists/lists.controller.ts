@@ -7,6 +7,7 @@ import {
   Put,
   Delete,
   Patch,
+  Req,
   BadRequestException,
 } from '@nestjs/common';
 import { ListsService } from './lists.service';
@@ -23,15 +24,22 @@ export class ListsController {
     private readonly listsService: ListsService,
   ) {}
 
-  @Get('/allLists')
-  async getAllLists(): Promise<List[]> {
-    return await this.listsService.findAll();
-  }
 
-  @Get('/latest')
-  async findLatest(): Promise<List> {
-    return await this.listsService.findLatest();
+  @Get('/allLists')
+  async getAllLists(@Req() req): Promise<List[]> {
+    const userId = req.user;
+    const organizationId = req.organizationId;
+    return await this.listsService.findAll(userId, organizationId);
   }
+  
+  @Get('/latest')
+  async findLatest(@Req() req): Promise<List> {
+    const userId = req.user;
+    const organizationId = req.organizationId || ''; 
+    console.log(userId, organizationId)
+    return await this.listsService.findLatest(userId, organizationId);
+  }
+  
 
   @Get('/listItems')
   async getAllListItems(): Promise<ListItem[]> {
@@ -80,12 +88,17 @@ export class ListsController {
     );
     return await this.listsService.findListItemsByIds(objectIdArray);
   }
-
   @Post('/new')
-  create(@Body() createListDto: CreateListDto): Promise<List> {
+  async create(
+    @Body() createListDto: CreateListDto,
+    @Req() req
+  ): Promise<List> {
     createListDto.name = this.listsService.generateRandomName();
-    return this.listsService.create(createListDto);
+    const userId = req.user; 
+    const organizationId = req.organizationId; 
+    return this.listsService.create(createListDto, userId, organizationId);
   }
+  
 
   @Post(':listId/addProduct')
   async addProductToList(

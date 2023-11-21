@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ListsModule } from './modules/lists/lists.module';
@@ -7,6 +7,8 @@ import { ProductModule } from './modules/products/products.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ShoppingListGateway } from './shopping-list/shopping-list.gateway';
 import { UsersModule } from './modules/users/users.module';
+import { ClerkProvider } from './common/providers/clerk-setup.provider';
+import { AuthenticationMiddleware } from './common/middlewares/authentication.middleware';
 
 
 @Module({
@@ -23,10 +25,23 @@ import { UsersModule } from './modules/users/users.module';
     }),
     ListsModule,
     ProductModule,
-    UsersModule, // <-- Add this line to integrate the UsersModule
+    UsersModule,
 
   ],
   controllers: [AppController],
-  providers: [AppService, ShoppingListGateway],
+  providers: [AppService, ShoppingListGateway, ClerkProvider],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthenticationMiddleware)
+      // Exclude paths for authentication like login or register if you have any.
+      // .exclude(
+      //   { path: 'auth/login', method: RequestMethod.POST },
+      //   { path: 'auth/register', method: RequestMethod.POST }
+      // )
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}
+
+

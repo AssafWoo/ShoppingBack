@@ -2,6 +2,8 @@
 export class CreateListDto {
     name: string;
     items?: CreateListItemDto[]; 
+    userId: string; 
+    organizationId: string;  
 }
 
 export class CreateListItemDto {

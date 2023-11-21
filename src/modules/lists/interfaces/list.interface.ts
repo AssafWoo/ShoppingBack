@@ -9,4 +9,6 @@ export interface List extends Document {
     active: boolean;
     date?: Date;
     finalPrice?: number;
+    userId: Types.ObjectId;
+    organizationId: Types.ObjectId;
 }
