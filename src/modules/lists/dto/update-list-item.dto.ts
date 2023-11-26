@@ -1,6 +1,6 @@
 // update-list-item.dto.ts
 
-import { IsOptional, IsString, IsNumber, Length, IsMongoId } from 'class-validator';
+import { IsOptional, IsString, IsNumber, Length } from 'class-validator';
 
 export class UpdateListItemDto {
   @IsOptional()

@@ -9,6 +9,8 @@ import { ShoppingListGateway } from './shopping-list/shopping-list.gateway';
 import { UsersModule } from './modules/users/users.module';
 import { ClerkProvider } from './common/providers/clerk-setup.provider';
 import { AuthenticationMiddleware } from './common/middlewares/authentication.middleware';
+import { TipsModule } from './modules/tips/tips.module';
+import { ChatGPTModule } from './modules/chatgpt/chatgpt.module';
 
 
 @Module({
@@ -26,6 +28,9 @@ import { AuthenticationMiddleware } from './common/middlewares/authentication.mi
     ListsModule,
     ProductModule,
     UsersModule,
+    TipsModule, // Add the TipsModule here
+    ChatGPTModule, // Add the ChatGPTModule here if it's not already imported within TipsModule
+
 
   ],
   controllers: [AppController],
