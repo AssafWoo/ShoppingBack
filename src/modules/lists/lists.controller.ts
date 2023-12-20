@@ -24,22 +24,19 @@ export class ListsController {
     private readonly listsService: ListsService,
   ) {}
 
-
   @Get('/allLists')
   async getAllLists(@Req() req): Promise<List[]> {
     const userId = req.user;
     const organizationId = req.organizationId;
     return await this.listsService.findAll(userId, organizationId);
   }
-  
+
   @Get('/latest')
   async findLatest(@Req() req): Promise<List> {
     const userId = req.user;
-    const organizationId = req.organizationId || ''; 
-    console.log(userId, organizationId)
+    const organizationId = req.organizationId || '';
     return await this.listsService.findLatest(userId, organizationId);
   }
-  
 
   @Get('/listItems')
   async getAllListItems(): Promise<ListItem[]> {
@@ -50,6 +47,14 @@ export class ListsController {
   async getStatistics(): Promise<any> {
     return await this.listsService.getStatistics();
   }
+
+  // new statistics implementation
+  // @Post('/statistics')
+  // async getStatistics(@Body() filters: any): Promise<any> {
+  //   const { startDate, endDate, productCategories } = filters;
+  //   return await this.listsService.getStatistics(startDate, endDate, productCategories);
+  // }
+  
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<List> {
@@ -91,14 +96,13 @@ export class ListsController {
   @Post('/new')
   async create(
     @Body() createListDto: CreateListDto,
-    @Req() req
+    @Req() req,
   ): Promise<List> {
     createListDto.name = this.listsService.generateRandomName();
-    const userId = req.user; 
-    const organizationId = req.organizationId; 
+    const userId = req.user;
+    const organizationId = req.organizationId;
     return this.listsService.create(createListDto, userId, organizationId);
   }
-  
 
   @Post(':listId/addProduct')
   async addProductToList(

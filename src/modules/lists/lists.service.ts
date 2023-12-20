@@ -275,6 +275,46 @@ export class ListsService {
     return result;
   }
 
+  // this is the new getStatistics, a user will be able to enter dates and product category
+  // async getStatistics(startDate, endDate, productCategories): Promise<any> {
+  //   // Adjust find query to include date range and product category filters
+  //   const query = {
+  //     active: false,
+  //     createdAt: {
+  //       $gte: startDate,
+  //       $lte: endDate,
+  //     },
+  //     // Add product category condition if provided
+  // ...(productCategories && { 'items.productId.category': { $in: productCategories } }),
+  //   };
+  
+  //   const closedLists = await this.listModel
+  //     .find(query)
+  //     .populate({
+  //       path: 'items',
+  //       populate: {
+  //         path: 'productId',
+  //         model: 'Product',
+  //       },
+  //     })
+  //     .exec();
+  
+  //   const result = {
+  //     categoryDistribution: {},
+  //     assigneeDistribution: {},
+  //     totalSpent: 0,
+  //   };
+  
+  //   for (const list of closedLists) {
+  //     this.computeTotalSpent(result, list);
+  //     this.computeCategoryDistribution(result, list);
+  //     this.computeAssigneeDistribution(result, list);
+  //   }
+  
+  //   return result;
+  // }
+  
+
   private computeTotalSpent(result: any, list: List) {
     result.totalSpent += list.finalPrice;
   }
