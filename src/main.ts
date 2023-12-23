@@ -4,8 +4,15 @@ import { corsConfig } from './config/cors.config';
 import * as mongoose from 'mongoose';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as cookieParser from 'cookie-parser';
+import { config } from 'dotenv';
 
 async function bootstrap() {
+  if (process.env.NODE_ENV === 'production') {
+    config({ path: '.env.production' });
+  } else {
+    config({ path: '.env.development' });
+  }
+
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
   app.setGlobalPrefix('api');
