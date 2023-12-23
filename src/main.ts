@@ -6,7 +6,6 @@ import { corsConfig } from './config/cors.config';
 import * as mongoose from 'mongoose';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as cookieParser from 'cookie-parser';
-import { config } from 'dotenv';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

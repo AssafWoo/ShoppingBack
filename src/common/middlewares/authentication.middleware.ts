@@ -17,6 +17,11 @@ export class AuthenticationMiddleware implements NestMiddleware {
       req.cookies['__session'] || req.headers['authorization'];
     const sessionId = req.query['_clerk_session_id'];
     const organizationId = req.query['_clerk_organization_id'];
+    console.log(`session Token: ${sessionToken}`);
+    console.log(`sessionId: ${sessionId}`);
+    console.log(`organizationId ${organizationId}`);
+    console.log(`req.cookies['__session']: ${req.cookies['__session']}`);
+    console.log(`req.headers['authorization']: ${req.headers['authorization']}`);
 
     if (!sessionToken) {
       throw new UnauthorizedException('No session token provided');
@@ -29,6 +34,9 @@ export class AuthenticationMiddleware implements NestMiddleware {
       req.session = session;
       req.user = session.userId;
       req.organizationId = organizationId;
+      console.log(`req: ${req}`);
+      console.log(`session:${session}`)
+  
       next();
     } catch (error) {
       console.error('AuthenticationMiddleware error:', error);
